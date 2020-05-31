@@ -4,42 +4,52 @@ import datetime as dt
 
 class Calculator:
 
-    def __init__(self,limit):
+    def __init__(self, limit):
         self.limit = limit
         self.records = []
-        
     
-    def add_record(self,rec):
+    def add_record(self, rec):
         """ Adds a record in the list "records". """
         self.records.append(rec)
 
     def get_today_stats(self):
         """ Returns total amount for today. """
 
-        summ = 0
-        for rec in self.records:
-            if rec.date == dt.date.today():
-                summ += rec.amount
-        return summ
+        today_date = dt.date.today()
+
+        amounts = [rec.amount 
+        for rec in self.records 
+        if rec.date == today_date
+        ]
+
+        return sum(amounts)
+
+    def get_today_remained(self):
+        """ Returns remained amount for today. """
+
+        return self.limit - self.get_today_stats()
 
     def get_week_stats(self):
         """ Returns total amount for the last week. """
 
-        summ = 0
-        week = dt.timedelta(days=7)
-        for rec in self.records:
-            if (dt.date.today() - week) <= rec.date <= dt.date.today():
-                summ += rec.amount
-        return summ
+
+        today_date = dt.date.today()
+        week_ago_date = today_date - dt.timedelta(days=7)
+
+        amounts = [rec.amount
+        for rec in self.records
+        if week_ago_date <= rec.date <= today_date]
+
+        return sum(amounts)
     
 
 
 
 class Record:
-    def __init__(self,amount,comment,date=""):
+    def __init__(self, amount, comment, date = None):
         self.amount = amount
         self.comment = comment
-        if date == "":
+        if date == None:
             self.date = dt.date.today()
         else:
             self.date = dt.datetime.strptime(date, "%d.%m.%Y").date()
@@ -47,32 +57,31 @@ class Record:
 class CashCalculator(Calculator):
     USD_RATE = 70.0
     EURO_RATE = 80.0
+    RUB_RATE = 1.0    
 
     def get_today_cash_remained(self, currency):
         """ Returns a string, where remained cash
          is shown in currency. 
          """
+        currencies = {
+        'eur': ('Euro', self.EURO_RATE),
+        'usd': ('USD', self.USD_RATE),
+        'rub': ('руб', self.RUB_RATE),
+        }
 
-        remained = 0
-        summ = self.get_today_stats()
+        today_remained = self.get_today_remained()
+        if today_remained == 0:
+            return 'Денег нет, держись'
 
-        if currency == "usd":
-            remained = round((self.limit - summ)/self.USD_RATE,2)
-            currency = "USD"
-        elif currency == "eur":
-            remained = round((self.limit - summ)/self.EURO_RATE,2)
-            currency = "Euro"
-        elif currency == "rub":
-            remained = round(self.limit - summ,2)
-            currency = "руб"
+        currency_name, currency_rate = currencies[currency]
 
-        if remained > 0:
-            return f"На сегодня осталось {remained} {currency}"
-        elif remained == 0:
-            return "Денег нет, держись"
-        elif remained < 0:
-            remained *= -1
-            return f"Денег нет, держись: твой долг - {remained} {currency}"
+        today_remained = round(today_remained/currency_rate, 2)
+
+        if today_remained > 0:
+            return f"На сегодня осталось {today_remained} {currency_name}"
+        elif today_remained < 0:
+            today_remained = abs(today_remained)
+            return f"Денег нет, держись: твой долг - {today_remained} {currency_name}"
 
     
 
@@ -81,12 +90,9 @@ class CaloriesCalculator(Calculator):
     def get_calories_remained(self):
         """ Returns remained calories for today.
         """
-
-        summ = self.get_today_stats()
-
-        remained = (self.limit - summ)
-
-        if remained > 0:
-            return f"Сегодня можно съесть что-нибудь ещё, но с общей калорийностью не более {remained} кКал"
-        else:
+        today_remained = self.get_today_remained()
+        if today_remained <= 0:
             return "Хватит есть!"
+        if today_remained > 0:
+            return (f"Сегодня можно съесть что-нибудь ещё, "
+            f"но с общей калорийностью не более {today_remained} кКал")
