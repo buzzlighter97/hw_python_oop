@@ -14,31 +14,30 @@ class Calculator:
 
     def get_today_stats(self):
         """ Returns total amount for today. """
-
         today_date = dt.date.today()
 
-        amounts = [rec.amount 
-        for rec in self.records 
-        if rec.date == today_date
+        amounts = [
+            rec.amount 
+            for rec in self.records 
+            if rec.date == today_date
         ]
 
         return sum(amounts)
 
     def get_today_remained(self):
         """ Returns remained amount for today. """
-
         return self.limit - self.get_today_stats()
 
     def get_week_stats(self):
         """ Returns total amount for the last week. """
-
-
         today_date = dt.date.today()
         week_ago_date = today_date - dt.timedelta(days=7)
 
-        amounts = [rec.amount
-        for rec in self.records
-        if week_ago_date <= rec.date <= today_date]
+        amounts = [
+            rec.amount
+            for rec in self.records
+            if week_ago_date <= rec.date <= today_date
+        ]
 
         return sum(amounts)
     
@@ -49,7 +48,7 @@ class Record:
     def __init__(self, amount, comment, date = None):
         self.amount = amount
         self.comment = comment
-        if date == None:
+        if date is None:
             self.date = dt.date.today()
         else:
             self.date = dt.datetime.strptime(date, "%d.%m.%Y").date()
@@ -64,14 +63,14 @@ class CashCalculator(Calculator):
          is shown in currency. 
          """
         currencies = {
-        'eur': ('Euro', self.EURO_RATE),
-        'usd': ('USD', self.USD_RATE),
-        'rub': ('руб', self.RUB_RATE),
+            "eur": ("Euro", self.EURO_RATE),
+            "usd": ("USD", self.USD_RATE),
+            "rub": ("руб", self.RUB_RATE),
         }
 
         today_remained = self.get_today_remained()
         if today_remained == 0:
-            return 'Денег нет, держись'
+            return "Денег нет, держись"
 
         currency_name, currency_rate = currencies[currency]
 
@@ -94,5 +93,5 @@ class CaloriesCalculator(Calculator):
         if today_remained <= 0:
             return "Хватит есть!"
         if today_remained > 0:
-            return (f"Сегодня можно съесть что-нибудь ещё, "
+            return ("Сегодня можно съесть что-нибудь ещё, "
             f"но с общей калорийностью не более {today_remained} кКал")
