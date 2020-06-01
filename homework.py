@@ -42,9 +42,8 @@ class Calculator:
         return sum(amounts)
     
 
-
-
 class Record:
+
     def __init__(self, amount, comment, date = None):
         self.amount = amount
         self.comment = comment
@@ -53,7 +52,9 @@ class Record:
         else:
             self.date = dt.datetime.strptime(date, "%d.%m.%Y").date()
 
+
 class CashCalculator(Calculator):
+
     USD_RATE = 70.0
     EURO_RATE = 80.0
     RUB_RATE = 1.0    
@@ -83,7 +84,6 @@ class CashCalculator(Calculator):
             return f"Денег нет, держись: твой долг - {today_remained} {currency_name}"
 
     
-
 class CaloriesCalculator(Calculator):
 
     def get_calories_remained(self):
@@ -94,4 +94,4 @@ class CaloriesCalculator(Calculator):
             return "Хватит есть!"
         if today_remained > 0:
             return ("Сегодня можно съесть что-нибудь ещё, "
-            f"но с общей калорийностью не более {today_remained} кКал")
+                f"но с общей калорийностью не более {today_remained} кКал")
